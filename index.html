@@ -5,7 +5,7 @@
 <h1>Weight Lifting Simulator<h1>
 <p>Weight lifing simulator is a awesome simulator game about<br>
 lifing weights and selling your strength for money to buy better<br>
-Weights</p>
+Weights and you can stack your weights.</p>
  <form action="#" method="POST" onsubmit="return false;">
   <div class="g-recaptcha" data-sitekey="6Lf9bj4rAAAAADP0K87QtycXM6-LqXA_ahtyWFy0"></div>
   <input type="submit" value="Submit">
@@ -21,9 +21,10 @@ Weights</p>
 
 <div id="popup" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.7); justify-content:center; align-items:center;">
   <div style="background:#222; padding:20px; border:3px solid goldenrod; color:white; margin:auto; width:300px; text-align:center;">
-    <button class="buy-weight" data-strength="20" data-cost="200">Buy Heavy Weight (+20 Strength) - 200 Coins</button>
-    <button class="buy-weight" data-strength="50" data-cost="450">Buy Super Weight (+50 Strength) - 450 Coins</button>
-    <button class="buy-weight" data-strength="100" data-cost="800">Buy Ultra Weight (+100 Strength) - 800 Coins</button>
+    <button class="buy-weight" data-strength="5" data-cost="100">Buy Small Weight (+5) - 100 Coins</button>
+    <button class="buy-weight" data-strength="50" data-cost="500">Buy Medium Weight (+50) - 500 Coins</button>
+    <button class="buy-weight" data-strength="100" data-cost="1000">Buy Heavy Weight (+100) - 1000 Coins</button>
+    <button class="buy-weight" data-strength="1000" data-cost="10000">Buy Ultra Weight (+1000) - 10,000 Coins</button>
     <button id="close-popup">Close</button>
   </div>
 </div>
@@ -32,7 +33,7 @@ Weights</p>
   let weightsLifted = 0;
   let coins = 0;
   let totalStrength = 0;
-  const weights = { 20: 0, 50: 0, 100: 0 };
+  const weights = { 5: 0, 50: 0, 100: 0, 1000: 0 };
 
   const weightsLiftedSpan = document.getElementById("weights-lifted");
   const strengthSpan = document.getElementById("strength");
@@ -52,7 +53,7 @@ Weights</p>
     coins += weightsLifted;
     weightsLifted = 0;
     coinsSpan.textContent = coins;
-    weightsLiftedSpan.textContent = weightsLifted;
+    weightsLiftedSpan.textContent = 0;
   };
 
   document.getElementById("buy-btn").onclick = () => {
