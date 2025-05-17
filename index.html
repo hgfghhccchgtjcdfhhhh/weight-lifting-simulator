@@ -11,44 +11,65 @@ Weights</p>
   <input type="submit" value="Submit">
 </form>
 <script src="https://www.google.com/recaptcha/api.js" async defer></script>
- <script>
-let weights = 0;
-let coins = 0;
+ <button id="lift-btn">Lift Weights</button>
+<button id="sell-btn">Sell</button>
+<button id="buy-btn">Buy Weights</button>
 
-function liftWeights() {
-  weights += 5;
-  document.getElementById("weights").textContent = weights;
-}
+<div>Weights Lifted: <span id="weights">0</span></div>
+<div>Coins: <span id="coins">0</span></div>
 
-function sellWeights() {
-  coins += weights;
-  weights = 0;
-  document.getElementById("weights").textContent = weights;
-  document.getElementById("coins").textContent = coins;
-}
+<div id="popup" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.7); justify-content:center; align-items:center;">
+  <div style="background:#222; padding:20px; border:3px solid goldenrod; color:white; margin:auto; width:300px; text-align:center;">
+    <button class="buy-weight" data-amount="10">Buy 10 Weights - 100 Coins</button>
+    <button class="buy-weight" data-amount="50">Buy 50 Weights - 400 Coins</button>
+    <button class="buy-weight" data-amount="100">Buy 100 Weights - 700 Coins</button>
+    <button id="close-popup">Close</button>
+  </div>
+</div>
 
-function openPopup() {
-  document.getElementById("popup").style.display = "block";
-  document.getElementById("overlay").style.display = "block";
-}
+<script>
+  let weights = 0;
+  let coins = 0;
 
-function closePopup() {
-  document.getElementById("popup").style.display = "none";
-  document.getElementById("overlay").style.display = "none";
-}
+  const weightsSpan = document.getElementById("weights");
+  const coinsSpan = document.getElementById("coins");
+  const popup = document.getElementById("popup");
 
-function buyWeight(amount) {
-  const cost = amount * 10;
-  if (coins >= cost) {
-    coins -= cost;
-    weights += amount;
-    document.getElementById("weights").textContent = weights;
-    document.getElementById("coins").textContent = coins;
-    closePopup();
-  } else {
-    alert("Not enough coins!");
-  }
-}
+  document.getElementById("lift-btn").onclick = () => {
+    weights += 5;
+    weightsSpan.textContent = weights;
+  };
+
+  document.getElementById("sell-btn").onclick = () => {
+    coins += weights;
+    weights = 0;
+    weightsSpan.textContent = weights;
+    coinsSpan.textContent = coins;
+  };
+
+  document.getElementById("buy-btn").onclick = () => {
+    popup.style.display = "flex";
+  };
+
+  document.getElementById("close-popup").onclick = () => {
+    popup.style.display = "none";
+  };
+
+  document.querySelectorAll(".buy-weight").forEach(button => {
+    button.onclick = () => {
+      const amount = Number(button.dataset.amount);
+      const cost = amount * 10;
+      if(coins >= cost) {
+        coins -= cost;
+        weights += amount;
+        coinsSpan.textContent = coins;
+        weightsSpan.textContent = weights;
+        popup.style.display = "none";
+      } else {
+        alert("Not enough coins!");
+      }
+    };
+  });
 </script>
 </body>
 </html>
