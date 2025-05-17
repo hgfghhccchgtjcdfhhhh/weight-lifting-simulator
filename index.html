@@ -30,8 +30,9 @@ Weights</p>
 
 <script>
   let weightsLifted = 0;
-  let strength = 0;
   let coins = 0;
+  let totalStrength = 0;
+  const weights = { 20: 0, 50: 0, 100: 0 };
 
   const weightsLiftedSpan = document.getElementById("weights-lifted");
   const strengthSpan = document.getElementById("strength");
@@ -39,16 +40,19 @@ Weights</p>
   const popup = document.getElementById("popup");
 
   document.getElementById("lift-btn").onclick = () => {
-    const liftAmount = 5 + strength;  // here!
+    let liftAmount = 0;
+    for (const [weight, count] of Object.entries(weights)) {
+      liftAmount += count * Number(weight);
+    }
     weightsLifted += liftAmount;
-    weightsLiftedSpan.textContent = Math.floor(weightsLifted);
+    weightsLiftedSpan.textContent = weightsLifted;
   };
 
   document.getElementById("sell-btn").onclick = () => {
-    coins += Math.floor(weightsLifted);
+    coins += weightsLifted;
     weightsLifted = 0;
     coinsSpan.textContent = coins;
-    weightsLiftedSpan.textContent = 0;
+    weightsLiftedSpan.textContent = weightsLifted;
   };
 
   document.getElementById("buy-btn").onclick = () => {
@@ -63,11 +67,12 @@ Weights</p>
     button.onclick = () => {
       const weightStrength = Number(button.dataset.strength);
       const cost = Number(button.dataset.cost);
-      if(coins >= cost) {
+      if (coins >= cost) {
         coins -= cost;
-        strength += weightStrength;
+        weights[weightStrength] += 1;
+        totalStrength += weightStrength;
         coinsSpan.textContent = coins;
-        strengthSpan.textContent = strength;
+        strengthSpan.textContent = totalStrength;
         popup.style.display = "none";
       } else {
         alert("Not enough coins!");
