@@ -15,35 +15,35 @@ Weights</p>
 <button id="sell-btn">Sell</button>
 <button id="buy-btn">Buy Weights</button>
 
-<div>Weights Lifted: <span id="weights">0</span></div>
+<div>Strength: <span id="strength">0</span></div>
 <div>Coins: <span id="coins">0</span></div>
 
 <div id="popup" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.7); justify-content:center; align-items:center;">
   <div style="background:#222; padding:20px; border:3px solid goldenrod; color:white; margin:auto; width:300px; text-align:center;">
-    <button class="buy-weight" data-amount="10">Buy 10 Weights - 100 Coins</button>
-    <button class="buy-weight" data-amount="50">Buy 50 Weights - 400 Coins</button>
-    <button class="buy-weight" data-amount="100">Buy 100 Weights - 700 Coins</button>
+    <button class="buy-weight" data-strength="20" data-cost="200">Buy Heavy Weight (+20 Strength) - 200 Coins</button>
+    <button class="buy-weight" data-strength="50" data-cost="450">Buy Super Weight (+50 Strength) - 450 Coins</button>
+    <button class="buy-weight" data-strength="100" data-cost="800">Buy Ultra Weight (+100 Strength) - 800 Coins</button>
     <button id="close-popup">Close</button>
   </div>
 </div>
 
 <script>
-  let weights = 0;
+  let strength = 0;
   let coins = 0;
 
-  const weightsSpan = document.getElementById("weights");
+  const strengthSpan = document.getElementById("strength");
   const coinsSpan = document.getElementById("coins");
   const popup = document.getElementById("popup");
 
   document.getElementById("lift-btn").onclick = () => {
-    weights += 5;
-    weightsSpan.textContent = weights;
+    strength += 5;
+    strengthSpan.textContent = strength;
   };
 
   document.getElementById("sell-btn").onclick = () => {
-    coins += weights;
-    weights = 0;
-    weightsSpan.textContent = weights;
+    coins += strength;
+    strength = 0;
+    strengthSpan.textContent = strength;
     coinsSpan.textContent = coins;
   };
 
@@ -57,13 +57,13 @@ Weights</p>
 
   document.querySelectorAll(".buy-weight").forEach(button => {
     button.onclick = () => {
-      const amount = Number(button.dataset.amount);
-      const cost = amount * 10;
+      const weightStrength = Number(button.dataset.strength);
+      const cost = Number(button.dataset.cost);
       if(coins >= cost) {
         coins -= cost;
-        weights += amount;
+        strength += weightStrength;
         coinsSpan.textContent = coins;
-        weightsSpan.textContent = weights;
+        strengthSpan.textContent = strength;
         popup.style.display = "none";
       } else {
         alert("Not enough coins!");
