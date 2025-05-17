@@ -11,5 +11,44 @@ Weights</p>
   <input type="submit" value="Submit">
 </form>
 <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+ <script>
+let weights = 0;
+let coins = 0;
+
+function liftWeights() {
+  weights += 5;
+  document.getElementById("weights").textContent = weights;
+}
+
+function sellWeights() {
+  coins += weights;
+  weights = 0;
+  document.getElementById("weights").textContent = weights;
+  document.getElementById("coins").textContent = coins;
+}
+
+function openPopup() {
+  document.getElementById("popup").style.display = "block";
+  document.getElementById("overlay").style.display = "block";
+}
+
+function closePopup() {
+  document.getElementById("popup").style.display = "none";
+  document.getElementById("overlay").style.display = "none";
+}
+
+function buyWeight(amount) {
+  const cost = amount * 10;
+  if (coins >= cost) {
+    coins -= cost;
+    weights += amount;
+    document.getElementById("weights").textContent = weights;
+    document.getElementById("coins").textContent = coins;
+    closePopup();
+  } else {
+    alert("Not enough coins!");
+  }
+}
+</script>
 </body>
 </html>
