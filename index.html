@@ -16,7 +16,7 @@ Weights and you can stack your weights.</p>
 <button id="buy-btn">Buy Weights</button>
 
 <div>Weights Lifted: <span id="weights-lifted">0</span></div>
-<div>Strength: <span id="strength">0</span></div>
+<div>Strength: <span id="strength">20</span></div>
 <div>Coins: <span id="coins">0</span></div>
 
 <div id="popup" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.7); justify-content:center; align-items:center;">
@@ -32,8 +32,8 @@ Weights and you can stack your weights.</p>
 <script>
   let weightsLifted = 0;
   let coins = 0;
-  let totalStrength = 0;
-  const weights = { 5: 0, 50: 0, 100: 0, 1000: 0 };
+  let totalStrength = 20;  // Starting with 20 strength
+  const weights = { 5: 0, 50: 0, 100: 0, 1000: 0, 20: 1 };  // Starting with one 20 weight
 
   const weightsLiftedSpan = document.getElementById("weights-lifted");
   const strengthSpan = document.getElementById("strength");
