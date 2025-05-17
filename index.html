@@ -25,20 +25,38 @@ Weights and you can stack your weights.</p>
     <button class="buy-weight" data-strength="50" data-cost="500">Buy Medium Weight (+50) - 500 Coins</button>
     <button class="buy-weight" data-strength="100" data-cost="1000">Buy Heavy Weight (+100) - 1000 Coins</button>
     <button class="buy-weight" data-strength="1000" data-cost="10000">Buy Ultra Weight (+1000) - 10,000 Coins</button>
+    <button class="buy-weight owner-only" data-strength="1000000" data-cost="0">Buy OMEGA WEIGHT (+1,000,000) - Owner Only</button>
     <button id="close-popup">Close</button>
   </div>
 </div>
 
 <script>
+  const ownerUsername = "hgfghhccchgtjcdfhhhh"; // Your GitHub username
   let weightsLifted = 0;
   let coins = 0;
-  let totalStrength = 20;  // Starting with 20 strength
-  const weights = { 5: 0, 50: 0, 100: 0, 1000: 0, 20: 1 };  // Starting with one 20 weight
+  let totalStrength = 20;
+  const weights = { 5: 0, 50: 0, 100: 0, 1000: 0, 20: 1 };
 
   const weightsLiftedSpan = document.getElementById("weights-lifted");
   const strengthSpan = document.getElementById("strength");
   const coinsSpan = document.getElementById("coins");
   const popup = document.getElementById("popup");
+
+  // Check if the current user is the owner
+  fetch("https://api.github.com/user", {
+    credentials: "include"
+  })
+    .then(response => response.json())
+    .then(user => {
+      if (user.login !== ownerUsername) {
+        document.querySelector(".owner-only").style.display = "none";
+        alert("You are not the owner!");
+      }
+    })
+    .catch(() => {
+      document.querySelector(".owner-only").style.display = "none";
+      alert("Unable to verify owner.");
+    });
 
   document.getElementById("lift-btn").onclick = () => {
     let liftAmount = 0;
@@ -68,14 +86,20 @@ Weights and you can stack your weights.</p>
     button.onclick = () => {
       const weightStrength = Number(button.dataset.strength);
       const cost = Number(button.dataset.cost);
+      
+      if (button.classList.contains("owner-only")) {
+        alert("You are not the owner!");
+        return;
+      }
+      
       if (coins >= cost) {
         coins -= cost;
-        weights[weightStrength] += 1;
+        weights[weightStrength] = (weights[weightStrength] || 0) + 1;
         totalStrength += weightStrength;
         coinsSpan.textContent = coins;
         strengthSpan.textContent = totalStrength;
         popup.style.display = "none";
-      } else {
+      } else if (cost > 0) {
         alert("Not enough coins!");
       }
     };
