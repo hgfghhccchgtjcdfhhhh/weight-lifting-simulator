@@ -11,7 +11,7 @@ Weights and you can stack your weights.</p>
   <input type="submit" value="Submit">
 </form>
 <script src="https://www.google.com/recaptcha/api.js" async defer></script>
- <button id="lift-btn">Lift Weights</button>
+<button id="lift-btn">Lift Weights</button>
 <button id="sell-btn">Sell</button>
 <button id="buy-btn">Buy Weights</button>
 
@@ -31,32 +31,17 @@ Weights and you can stack your weights.</p>
 </div>
 
 <script>
-  const ownerUsername = "hgfghhccchgtjcdfhhhh"; // Your GitHub username
+  const ownerUsername = "hgfghhccchgtjcdfhhhh";
   let weightsLifted = 0;
   let coins = 0;
   let totalStrength = 20;
   const weights = { 5: 0, 50: 0, 100: 0, 1000: 0, 20: 1 };
 
-  const weightsLiftedSpan = document.getElementById("weights-lifted");
-  const strengthSpan = document.getElementById("strength");
-  const coinsSpan = document.getElementById("coins");
-  const popup = document.getElementById("popup");
-
-  // Check if the current user is the owner
-  fetch("https://api.github.com/user", {
-    credentials: "include"
-  })
-    .then(response => response.json())
-    .then(user => {
-      if (user.login !== ownerUsername) {
-        document.querySelector(".owner-only").style.display = "none";
-        alert("You are not the owner!");
-      }
-    })
-    .catch(() => {
-      document.querySelector(".owner-only").style.display = "none";
-      alert("Unable to verify owner.");
-    });
+  const currentUser = prompt("Enter your GitHub username:");
+  const isOwner = currentUser === ownerUsername;
+  if (!isOwner) {
+    document.querySelector(".owner-only").style.display = "none";
+  }
 
   document.getElementById("lift-btn").onclick = () => {
     let liftAmount = 0;
@@ -64,22 +49,22 @@ Weights and you can stack your weights.</p>
       liftAmount += count * Number(weight);
     }
     weightsLifted += liftAmount;
-    weightsLiftedSpan.textContent = weightsLifted;
+    document.getElementById("weights-lifted").textContent = weightsLifted;
   };
 
   document.getElementById("sell-btn").onclick = () => {
     coins += weightsLifted;
     weightsLifted = 0;
-    coinsSpan.textContent = coins;
-    weightsLiftedSpan.textContent = 0;
+    document.getElementById("coins").textContent = coins;
+    document.getElementById("weights-lifted").textContent = 0;
   };
 
   document.getElementById("buy-btn").onclick = () => {
-    popup.style.display = "flex";
+    document.getElementById("popup").style.display = "flex";
   };
 
   document.getElementById("close-popup").onclick = () => {
-    popup.style.display = "none";
+    document.getElementById("popup").style.display = "none";
   };
 
   document.querySelectorAll(".buy-weight").forEach(button => {
@@ -87,7 +72,7 @@ Weights and you can stack your weights.</p>
       const weightStrength = Number(button.dataset.strength);
       const cost = Number(button.dataset.cost);
       
-      if (button.classList.contains("owner-only")) {
+      if (button.classList.contains("owner-only") && !isOwner) {
         alert("You are not the owner!");
         return;
       }
@@ -96,9 +81,9 @@ Weights and you can stack your weights.</p>
         coins -= cost;
         weights[weightStrength] = (weights[weightStrength] || 0) + 1;
         totalStrength += weightStrength;
-        coinsSpan.textContent = coins;
-        strengthSpan.textContent = totalStrength;
-        popup.style.display = "none";
+        document.getElementById("coins").textContent = coins;
+        document.getElementById("strength").textContent = totalStrength;
+        document.getElementById("popup").style.display = "none";
       } else if (cost > 0) {
         alert("Not enough coins!");
       }
