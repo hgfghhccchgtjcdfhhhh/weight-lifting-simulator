@@ -11,10 +11,11 @@ Weights</p>
   <input type="submit" value="Submit">
 </form>
 <script src="https://www.google.com/recaptcha/api.js" async defer></script>
- <button id="lift-btn">Lift Weights</button>
+<button id="lift-btn">Lift Weights</button>
 <button id="sell-btn">Sell</button>
 <button id="buy-btn">Buy Weights</button>
 
+<div>Weights Lifted: <span id="weights-lifted">0</span></div>
 <div>Strength: <span id="strength">0</span></div>
 <div>Coins: <span id="coins">0</span></div>
 
@@ -28,23 +29,26 @@ Weights</p>
 </div>
 
 <script>
+  let weightsLifted = 0;
   let strength = 0;
   let coins = 0;
 
+  const weightsLiftedSpan = document.getElementById("weights-lifted");
   const strengthSpan = document.getElementById("strength");
   const coinsSpan = document.getElementById("coins");
   const popup = document.getElementById("popup");
 
   document.getElementById("lift-btn").onclick = () => {
-    strength += 5;
-    strengthSpan.textContent = strength;
+    const liftAmount = 5 + strength * 0.1; // lifting power scales with strength
+    weightsLifted += liftAmount;
+    weightsLiftedSpan.textContent = Math.floor(weightsLifted);
   };
 
   document.getElementById("sell-btn").onclick = () => {
-    coins += strength;
-    strength = 0;
-    strengthSpan.textContent = strength;
+    coins += Math.floor(weightsLifted);
+    weightsLifted = 0;
     coinsSpan.textContent = coins;
+    weightsLiftedSpan.textContent = 0;
   };
 
   document.getElementById("buy-btn").onclick = () => {
