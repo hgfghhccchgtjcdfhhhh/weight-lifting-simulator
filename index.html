@@ -39,7 +39,7 @@ Weights</p>
   const popup = document.getElementById("popup");
 
   document.getElementById("lift-btn").onclick = () => {
-    const liftAmount = 5 + strength * 0.5; // bigger multiplier
+    const liftAmount = 5 + strength;  // here!
     weightsLifted += liftAmount;
     weightsLiftedSpan.textContent = Math.floor(weightsLifted);
   };
