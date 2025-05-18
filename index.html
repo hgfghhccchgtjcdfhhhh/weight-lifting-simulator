@@ -98,5 +98,37 @@ Weights and you can stack your weights.</p>
     <button id="close-leaderboard">Close</button>
   </div>
 </div>
+ <script>
+  const leaderboard = JSON.parse(localStorage.getItem("leaderboard")) || [];
+  const currentUser = prompt("Enter your GitHub username:") || "Guest";
+  let strength = 20;
+  let coins = 0;
+
+  function updateLeaderboard() {
+    leaderboard.push({ username: currentUser, strength, coins });
+    leaderboard.sort((a, b) => b.strength - a.strength || b.coins - a.coins);
+    if (leaderboard.length > 100) leaderboard.pop();
+    localStorage.setItem("leaderboard", JSON.stringify(leaderboard));
+    
+    const leaderboardList = document.getElementById("leaderboard-list");
+    leaderboardList.innerHTML = "";
+    leaderboard.forEach((player, index) => {
+      const listItem = document.createElement("li");
+      listItem.textContent = `#${index + 1} - ${player.username}: Strength ${player.strength} | Coins ${player.coins}`;
+      leaderboardList.appendChild(listItem);
+    });
+  }
+
+  document.getElementById("leaderboard-btn").onclick = () => {
+    updateLeaderboard();
+    document.getElementById("leaderboard").style.display = "flex";
+  };
+
+  document.getElementById("close-leaderboard").onclick = () => {
+    document.getElementById("leaderboard").style.display = "none";
+  };
+
+  updateLeaderboard();
+</script>
 </body>
 </html>
