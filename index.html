@@ -22,6 +22,7 @@ Weights and you can stack your weights.</p>
 <div>Weights Lifted: <span id="weights-lifted">0</span></div>
 <div>Strength: <span id="strength">5</span></div>
 <div>Coins: <span id="coins">0</span></div>
+<div>Next Bomb Drop In: <span id="bomb-countdown">300</span> seconds</div>
 
 <div id="popup" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.7); justify-content:center; align-items:center;">
   <div style="background:#222; padding:20px; border:3px solid goldenrod; color:white; margin:auto; width:300px; text-align:center;">
@@ -134,6 +135,24 @@ document.querySelectorAll(".buy-weight").forEach(button => {
     }
   };
 });
+
+let bombCountdown = 300;
+setInterval(() => {
+  bombCountdown--;
+  document.getElementById("bomb-countdown").textContent = bombCountdown;
+  if (bombCountdown <= 0) {
+    const damage = Math.floor(totalStrength * 0.2);
+    totalStrength -= damage;
+    coins -= Math.floor(coins * 0.2);
+    weightsLifted -= Math.floor(weightsLifted * 0.2);
+    if (totalStrength < 5) totalStrength = 5;
+    if (coins < 0) coins = 0;
+    if (weightsLifted < 0) weightsLifted = 0;
+    updateLeaderboard();
+    bombCountdown = 300;
+    alert("💥 A bomb dropped! You lost 20% of your strength, coins, and weights lifted!");
+  }
+}, 1000);
 
 fetchLeaderboard();
 </script>
