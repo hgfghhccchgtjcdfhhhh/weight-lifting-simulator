@@ -24,7 +24,7 @@ Weights and you can stack your weights.</p>
     <button class="buy-weight" data-strength="50" data-cost="500">Buy Medium Weight (+50) - 500 Coins</button>
     <button class="buy-weight" data-strength="100" data-cost="1000">Buy Heavy Weight (+100) - 1000 Coins</button>
     <button class="buy-weight" data-strength="1000" data-cost="10000">Buy Ultra Weight (+1000) - 10,000 Coins</button>
-    <button class="buy-weight owner-only" data-strength="1000000" data-cost="0">Buy OMEGA WEIGHT (+1,000,000) - Owner Only</button>
+    <button class="buy-weight owner-only" data-strength="1000000" data-cost="0">Buy OWNER WEIGHT (+1,000,000) - Owner Only</button>
     <button id="close-popup">Close</button>
   </div>
 </div>
@@ -36,7 +36,11 @@ Weights and you can stack your weights.</p>
   let totalStrength = 20;
   const weights = { 50: 0, 100: 0, 1000: 0, 20: 1 };
 
-  const currentUser = prompt("Enter your GitHub username:");
+  let currentUser = localStorage.getItem("username");
+  if (!currentUser) {
+    currentUser = prompt("Enter your GitHub username:") || "Guest";
+    localStorage.setItem("username", currentUser);
+  }
   const isOwner = omegaAdmins.includes(currentUser);
   if (!isOwner) {
     document.querySelector(".owner-only").style.display = "none";
@@ -88,31 +92,59 @@ Weights and you can stack your weights.</p>
       }
     };
   });
+
+  function dropBomb() {
+    const bombDamagePercent = 0.05;
+    const lostStrength = Math.floor(totalStrength * bombDamagePercent);
+    const lostCoins = Math.floor(coins * bombDamagePercent);
+    const lostWeightsLifted = Math.floor(weightsLifted * bombDamagePercent);
+
+    totalStrength = Math.max(20, totalStrength - lostStrength);
+    coins = Math.max(0, coins - lostCoins);
+    weightsLifted = Math.max(0, weightsLifted - lostWeightsLifted);
+
+    // Reduce weights counts proportionally
+    for (const weight in weights) {
+      weights[weight] = Math.floor(weights[weight] * (1 - bombDamagePercent));
+      if (weights[weight] < 0) weights[weight] = 0;
+    }
+
+    document.getElementById("strength").textContent = totalStrength;
+    document.getElementById("coins").textContent = coins;
+    document.getElementById("weights-lifted").textContent = weightsLifted;
+
+    alert(`💣 Bomb dropped! You lost ${lostStrength} strength, ${lostCoins} coins, and ${lostWeightsLifted} weights lifted!`);
+
+    scheduleNextBomb();
+  }
+
+  function scheduleNextBomb() {
+    const interval = Math.random() * 15000 + 15000;
+    setTimeout(dropBomb, interval);
+  }
+
+  scheduleNextBomb();
 </script>
- <div id="leaderboard" style="background:#222; padding:20px; border:3px solid goldenrod; color:white; width:90%; max-width:500px; margin:20px auto; text-align:center;">
+
+<div id="leaderboard" style="background:#222; padding:20px; border:3px solid goldenrod; color:white; width:90%; max-width:500px; margin:20px auto; text-align:center;">
   <h2>🏆 Leaderboard</h2>
   <ol id="leaderboard-list"></ol>
 </div>
 
 <script>
   const leaderboard = JSON.parse(localStorage.getItem("leaderboard")) || [];
-  let currentUser = localStorage.getItem("username");
+  currentUser = localStorage.getItem("username");
 
-  if (!currentUser) {
-    currentUser = prompt("Enter your GitHub username:") || "Guest";
-    localStorage.setItem("username", currentUser);
-  }
-
-  let strength = 20;
-  let coins = 0;
+  let strength = totalStrength;
+  let leaderboardCoins = coins;
 
   function updateLeaderboard() {
     const existingPlayer = leaderboard.find(player => player.username === currentUser);
     if (existingPlayer) {
       existingPlayer.strength = strength;
-      existingPlayer.coins = coins;
+      existingPlayer.coins = leaderboardCoins;
     } else {
-      leaderboard.push({ username: currentUser, strength, coins });
+      leaderboard.push({ username: currentUser, strength, coins: leaderboardCoins });
     }
 
     leaderboard.sort((a, b) => b.strength - a.strength || b.coins - a.coins);
@@ -127,6 +159,12 @@ Weights and you can stack your weights.</p>
       leaderboardList.appendChild(listItem);
     });
   }
+
+  setInterval(() => {
+    strength = totalStrength;
+    leaderboardCoins = coins;
+    updateLeaderboard();
+  }, 5000);
 
   updateLeaderboard();
 </script>
