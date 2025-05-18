@@ -4,6 +4,7 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+
 <h1>Weight Lifting Simulator</h1>
 <p>Weight lifing simulator is a awesome simulator game about<br>
 lifing weights and selling your strength for money to buy better<br>
@@ -22,6 +23,7 @@ Weights and you can stack your weights.</p>
 <button id="sell-btn">Sell</button>
 <button id="buy-btn">Buy Weights</button>
 
+<!-- Stats under buttons -->
 <div style="margin-top: 15px;">
   <div>Weights Lifted: <span id="weights-lifted">0</span></div>
   <div>Strength: <span id="strength">5</span></div>
@@ -43,140 +45,154 @@ Weights and you can stack your weights.</p>
   <ol id="leaderboard-list"></ol>
 </div>
 
-<script>
-  const omegaAdmins = ["KaydenDev123", "hgfghhccchgtjcdfhhhh"];
-  let weightsLifted = 0;
-  let coins = 0;
-  let totalStrength = 5;
-  const weights = { 20: 1, 1000: 0 };
+<script type="module">
+  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
 
-  let currentUser = localStorage.getItem("username");
+  const supabaseUrl = 'https://gkcysyvdpgypytuemtof.supabase.co'
+  const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdrY3lzeXZkcGd5cHl0dWVtdG9mIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc0NzU1NDMxNywiZXhwIjoyMDYzMTMwMzE3fQ.Y_A3GuEcGYhLo2lcQR4waOSKBDlVfUC8evM0oyGLWEc'
+  const supabase = createClient(supabaseUrl, supabaseKey)
+
+  const omegaAdmins = ["KaydenDev123", "hgfghhccchgtjcdfhhhh"]
+
+  let weightsLifted = 0
+  let coins = 0
+  let totalStrength = 5
+  const weights = { 20: 0, 1000: 0 }
+
+  let currentUser = localStorage.getItem("username")
   if (!currentUser) {
-    currentUser = prompt("Enter your GitHub username:") || "Guest";
-    localStorage.setItem("username", currentUser);
+    currentUser = prompt("Enter your GitHub username:") || "Guest"
+    localStorage.setItem("username", currentUser)
   }
-  const isOwner = omegaAdmins.includes(currentUser);
+  const isOwner = omegaAdmins.includes(currentUser)
   if (!isOwner) {
-    document.querySelectorAll(".owner-only").forEach(el => el.style.display = "none");
+    document.querySelectorAll(".owner-only").forEach(el => el.style.display = "none")
   }
 
   function updateStats() {
-    document.getElementById("weights-lifted").textContent = weightsLifted;
-    document.getElementById("strength").textContent = totalStrength;
-    document.getElementById("coins").textContent = coins;
+    document.getElementById("weights-lifted").textContent = weightsLifted
+    document.getElementById("strength").textContent = totalStrength
+    document.getElementById("coins").textContent = coins
   }
 
   document.getElementById("lift-btn").onclick = () => {
-    let liftAmount = 0;
+    let liftAmount = 0
     for (const [weight, count] of Object.entries(weights)) {
-      liftAmount += count * Number(weight);
+      liftAmount += count * Number(weight)
     }
-    weightsLifted += liftAmount;
-    updateStats();
-  };
+    weightsLifted += liftAmount + totalStrength
+    updateStats()
+  }
 
   document.getElementById("sell-btn").onclick = () => {
-    coins += weightsLifted;
-    weightsLifted = 0;
-    updateStats();
-  };
+    coins += weightsLifted
+    weightsLifted = 0
+    updateStats()
+  }
 
   document.getElementById("buy-btn").onclick = () => {
-    document.getElementById("popup").style.display = "flex";
-  };
+    document.getElementById("popup").style.display = "flex"
+  }
 
   document.getElementById("close-popup").onclick = () => {
-    document.getElementById("popup").style.display = "none";
-  };
+    document.getElementById("popup").style.display = "none"
+  }
 
   document.querySelectorAll(".buy-weight").forEach(button => {
     button.onclick = () => {
-      const weightStrength = Number(button.dataset.strength);
-      const cost = Number(button.dataset.cost);
+      const weightStrength = Number(button.dataset.strength)
+      const cost = Number(button.dataset.cost)
 
       if (button.classList.contains("owner-only") && !isOwner) {
-        alert("You are not the owner!");
-        return;
+        alert("You are not the owner!")
+        return
       }
 
       if (coins >= cost) {
-        coins -= cost;
-        weights[weightStrength] = (weights[weightStrength] || 0) + 1;
-        totalStrength += weightStrength;
-        updateStats();
-        document.getElementById("popup").style.display = "none";
+        coins -= cost
+        weights[weightStrength] = (weights[weightStrength] || 0) + 1
+        totalStrength += weightStrength
+        updateStats()
+        document.getElementById("popup").style.display = "none"
       } else if (cost > 0) {
-        alert("Not enough coins!");
+        alert("Not enough coins!")
       }
-    };
-  });
+    }
+  })
 
   // Bomb timer and effect every 5 minutes
-  const bombInterval = 5 * 60;
-  let bombCountdown = bombInterval;
+  const bombInterval = 5 * 60
+  let bombCountdown = bombInterval
 
   function updateBombTimer() {
-    const mins = Math.floor(bombCountdown / 60);
-    const secs = bombCountdown % 60;
-    document.getElementById("bomb-timer").textContent = `Bomb drops in ${mins}:${secs.toString().padStart(2, '0')}`;
+    const mins = Math.floor(bombCountdown / 60)
+    const secs = bombCountdown % 60
+    document.getElementById("bomb-timer").textContent = `Bomb drops in ${mins}:${secs.toString().padStart(2, '0')}`
   }
 
   function bombDrop() {
-    weightsLifted = Math.floor(weightsLifted * 0.8);
-    coins = Math.floor(coins * 0.8);
-    totalStrength = Math.floor(totalStrength * 0.8);
-    updateStats();
+    weightsLifted = Math.floor(weightsLifted * 0.8)
+    coins = Math.floor(coins * 0.8)
+    totalStrength = Math.floor(totalStrength * 0.8)
+    updateStats()
   }
 
   setInterval(() => {
-    bombCountdown--;
+    bombCountdown--
     if (bombCountdown <= 0) {
-      bombDrop();
-      bombCountdown = bombInterval;
+      bombDrop()
+      bombCountdown = bombInterval
     }
-    updateBombTimer();
-  }, 1000);
+    updateBombTimer()
+  }, 1000)
 
-  updateStats();
+  updateStats()
 
-  // Leaderboard with Supabase
-  const supabaseUrl = 'https://gkcysyvdpgypytuemtof.supabase.co';
-  const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdrY3lzeXZkcGd5cHl0dWVtdG9mIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc0NzU1NDMxNywiZXhwIjoyMDYzMTMwMzE3fQ.Y_A3GuEcGYhLo2lcQR4waOSKBDlVfUC8evM0oyGLWEc';
-  const supabase = supabaseCreateClient(supabaseUrl, supabaseKey);
-
-  async function supabaseCreateClient(url, key) {
-    const { createClient } = await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm');
-    return createClient(url, key);
-  }
-
+  // Leaderboard update and save
   async function updateLeaderboard() {
-    const { data, error } = await supabase.from('leaderboard').select('*').order('strength', { ascending: false }).order('coins', { ascending: false }).limit(100);
-    if (error) return;
+    try {
+      const { data: existing, error: fetchError } = await supabase
+        .from('leaderboard')
+        .select('*')
+        .eq('username', currentUser)
+        .single()
 
-    let found = false;
-    for (const player of data) {
-      if (player.username === currentUser) {
-        found = true;
-        await supabase.from('leaderboard').update({ strength: totalStrength, coins }).eq('username', currentUser);
-        break;
+      if (fetchError && fetchError.code !== 'PGRST116') {
+        console.error(fetchError)
+        return
       }
-    }
-    if (!found) {
-      await supabase.from('leaderboard').insert([{ username: currentUser, strength: totalStrength, coins }]);
-    }
 
-    const { data: newData } = await supabase.from('leaderboard').select('*').order('strength', { ascending: false }).order('coins', { ascending: false }).limit(100);
-    const leaderboardList = document.getElementById("leaderboard-list");
-    leaderboardList.innerHTML = "";
-    newData.forEach((player, index) => {
-      const li = document.createElement("li");
-      li.textContent = `#${index + 1} - ${player.username}: Strength ${player.strength} | Coins ${player.coins}`;
-      leaderboardList.appendChild(li);
-    });
+      if (existing) {
+        await supabase
+          .from('leaderboard')
+          .update({ strength: totalStrength, coins })
+          .eq('username', currentUser)
+      } else {
+        await supabase
+          .from('leaderboard')
+          .insert([{ username: currentUser, strength: totalStrength, coins }])
+      }
+
+      const { data: leaderboardData, error: lbError } = await supabase
+        .from('leaderboard')
+        .select('*')
+        .order('strength', { ascending: false })
+        .order('coins', { ascending: false })
+        .limit(100)
+
+      if (lbError) {
+        console.error(lbError)
+        return
+      }
+
+      const leaderboardList = document.getElementById("leaderboard-list")
+      leaderboardList.innerHTML = ''
+      leaderboardData.forEach((player, index) => {
+        const li = document.createElement("li")
+        li.textContent = `#${index + 1} - ${player.username}: Strength ${player.strength} | Coins ${player.coins}`
+        leaderboardList.appendChild(li)
+      })
+    } catch (err) {
+      console.error(err)
+    }
   }
-
-  setInterval(updateLeaderboard, 5000);
-  updateLeaderboard();
-</script>
-</body>
-</html>
