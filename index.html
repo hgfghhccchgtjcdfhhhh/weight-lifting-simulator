@@ -20,9 +20,12 @@ Weights and you can stack your weights.</p>
 <button id="sell-btn">Sell</button>
 <button id="buy-btn">Buy Weights</button>
 
-<div>Weights Lifted: <span id="weights-lifted">0</span></div>
-<div>Strength: <span id="strength">5</span></div>
-<div>Coins: <span id="coins">0</span></div>
+<!-- Stats displayed right under buttons -->
+<div id="stats-container" style="margin-top: 15px; font-weight: bold; font-size: 1.1em;">
+  <div>Weights Lifted: <span id="weights-lifted">0</span></div>
+  <div>Strength: <span id="strength">5</span></div>
+  <div>Coins: <span id="coins">0</span></div>
+</div>
 
 <div id="popup" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.7); justify-content:center; align-items:center;">
   <div style="background:#222; padding:20px; border:3px solid goldenrod; color:white; margin:auto; width:300px; text-align:center;">
@@ -44,7 +47,7 @@ Weights and you can stack your weights.</p>
   let weightsLifted = 0;
   let coins = 0;
   let totalStrength = 5;
-  const weights = { 20: 1, 100: 0, 1000: 0, 1000000: 0 };
+  const weights = { 20: 0, 100: 0, 1000: 0, 1000000: 0 };
 
   let currentUser = localStorage.getItem("username");
   if (!currentUser) {
@@ -56,7 +59,26 @@ Weights and you can stack your weights.</p>
     document.querySelector(".owner-only").style.display = "none";
   }
 
-  const leaderboard = JSON.parse(localStorage.getItem("leaderboard")) || [];
+  // Load saved stats from localStorage if available
+  const savedStats = JSON.parse(localStorage.getItem("stats_" + currentUser));
+  if (savedStats) {
+    weightsLifted = savedStats.weightsLifted || 0;
+    coins = savedStats.coins || 0;
+    totalStrength = savedStats.totalStrength || 5;
+    Object.assign(weights, savedStats.weights || { 20:0, 100:0, 1000:0, 1000000:0 });
+  }
+
+  // Load leaderboard or create empty
+  let leaderboard = JSON.parse(localStorage.getItem("leaderboard")) || [];
+
+  function saveStats() {
+    localStorage.setItem("stats_" + currentUser, JSON.stringify({
+      weightsLifted,
+      coins,
+      totalStrength,
+      weights
+    }));
+  }
 
   function updateStatsUI() {
     document.getElementById("weights-lifted").textContent = weightsLifted;
@@ -65,7 +87,7 @@ Weights and you can stack your weights.</p>
   }
 
   function updateLeaderboard() {
-    const existingPlayer = leaderboard.find(player => player.username === currentUser);
+    const existingPlayer = leaderboard.find(p => p.username === currentUser);
     if (existingPlayer) {
       existingPlayer.strength = totalStrength;
       existingPlayer.coins = coins;
@@ -75,15 +97,14 @@ Weights and you can stack your weights.</p>
 
     leaderboard.sort((a, b) => b.strength - a.strength || b.coins - a.coins);
     if (leaderboard.length > 100) leaderboard.length = 100;
-
     localStorage.setItem("leaderboard", JSON.stringify(leaderboard));
-    
-    const leaderboardList = document.getElementById("leaderboard-list");
-    leaderboardList.innerHTML = "";
-    leaderboard.forEach((player, index) => {
+
+    const list = document.getElementById("leaderboard-list");
+    list.innerHTML = "";
+    leaderboard.forEach((player, i) => {
       const li = document.createElement("li");
-      li.textContent = `#${index + 1} - ${player.username}: Strength ${player.strength} | Coins ${player.coins}`;
-      leaderboardList.appendChild(li);
+      li.textContent = `#${i + 1} - ${player.username}: Strength ${player.strength} | Coins ${player.coins}`;
+      list.appendChild(li);
     });
   }
 
@@ -93,6 +114,7 @@ Weights and you can stack your weights.</p>
     totalStrength = Math.floor(totalStrength * 0.8);
     updateStatsUI();
     updateLeaderboard();
+    saveStats();
     alert("💣 Bomb dropped! 20% of your stats lost.");
   }
 
@@ -104,6 +126,7 @@ Weights and you can stack your weights.</p>
     weightsLifted += liftAmount;
     updateStatsUI();
     updateLeaderboard();
+    saveStats();
   };
 
   document.getElementById("sell-btn").onclick = () => {
@@ -111,6 +134,7 @@ Weights and you can stack your weights.</p>
     weightsLifted = 0;
     updateStatsUI();
     updateLeaderboard();
+    saveStats();
   };
 
   document.getElementById("buy-btn").onclick = () => {
@@ -135,6 +159,7 @@ Weights and you can stack your weights.</p>
         totalStrength += weightStrength;
         updateStatsUI();
         updateLeaderboard();
+        saveStats();
         document.getElementById("popup").style.display = "none";
       } else if (cost > 0) {
         alert("Not enough coins!");
