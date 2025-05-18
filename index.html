@@ -89,23 +89,32 @@ Weights and you can stack your weights.</p>
     };
   });
 </script>
- <button id="leaderboard-btn">Leaderboard</button>
-
-<div id="leaderboard" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.9); overflow:auto; justify-content:center; align-items:center; padding:30px; z-index:9999;">
-  <div style="background:#222; padding:20px; border:3px solid goldenrod; color:white; width:90%; max-width:500px; margin:auto; text-align:center;">
-    <h2>🏆 Leaderboard</h2>
-    <ol id="leaderboard-list"></ol>
-    <button id="close-leaderboard">Close</button>
-  </div>
+ <div id="leaderboard" style="background:#222; padding:20px; border:3px solid goldenrod; color:white; width:90%; max-width:500px; margin:20px auto; text-align:center;">
+  <h2>🏆 Leaderboard</h2>
+  <ol id="leaderboard-list"></ol>
 </div>
- <script>
+
+<script>
   const leaderboard = JSON.parse(localStorage.getItem("leaderboard")) || [];
-  const currentUser = prompt("Enter your GitHub username:") || "Guest";
+  let currentUser = localStorage.getItem("username");
+
+  if (!currentUser) {
+    currentUser = prompt("Enter your GitHub username:") || "Guest";
+    localStorage.setItem("username", currentUser);
+  }
+
   let strength = 20;
   let coins = 0;
 
   function updateLeaderboard() {
-    leaderboard.push({ username: currentUser, strength, coins });
+    const existingPlayer = leaderboard.find(player => player.username === currentUser);
+    if (existingPlayer) {
+      existingPlayer.strength = strength;
+      existingPlayer.coins = coins;
+    } else {
+      leaderboard.push({ username: currentUser, strength, coins });
+    }
+
     leaderboard.sort((a, b) => b.strength - a.strength || b.coins - a.coins);
     if (leaderboard.length > 100) leaderboard.pop();
     localStorage.setItem("leaderboard", JSON.stringify(leaderboard));
@@ -118,15 +127,6 @@ Weights and you can stack your weights.</p>
       leaderboardList.appendChild(listItem);
     });
   }
-
-  document.getElementById("leaderboard-btn").onclick = () => {
-    updateLeaderboard();
-    document.getElementById("leaderboard").style.display = "flex";
-  };
-
-  document.getElementById("close-leaderboard").onclick = () => {
-    document.getElementById("leaderboard").style.display = "none";
-  };
 
   updateLeaderboard();
 </script>
