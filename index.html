@@ -1,27 +1,28 @@
 <!DOCTYPE html>
 <html>
- <link rel="stylesheet" href="style.css">
+<head>
+  <link rel="stylesheet" href="style.css">
+</head>
 <body>
 <h1>Weight Lifting Simulator</h1>
 <p>Weight lifing simulator is a awesome simulator game about<br>
 lifing weights and selling your strength for money to buy better<br>
 Weights and you can stack your weights.</p>
+
 <form action="#" method="POST" onsubmit="return false;">
   <div class="g-recaptcha" data-sitekey="6Lf9bj4rAAAAADP0K87QtycXM6-LqXA_ahtyWFy0"></div>
   <input type="submit" value="Submit">
 </form>
+
 <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 
-<div id="bomb-timer" style="color: goldenrod; font-weight: bold; font-size: 1.2em; text-align:center; margin-bottom:10px;">
-  Bomb drops in: 5:00
-</div>
+<div id="bomb-timer" style="color:gold; font-weight:bold; text-align:center; margin:10px 0; font-family: 'Times New Roman', Times, serif;"></div>
 
 <button id="lift-btn">Lift Weights</button>
 <button id="sell-btn">Sell</button>
 <button id="buy-btn">Buy Weights</button>
 
-<!-- Stats displayed right under buttons -->
-<div id="stats-container" style="margin-top: 15px; font-weight: bold; font-size: 1.1em;">
+<div style="margin-top: 15px;">
   <div>Weights Lifted: <span id="weights-lifted">0</span></div>
   <div>Strength: <span id="strength">5</span></div>
   <div>Coins: <span id="coins">0</span></div>
@@ -30,7 +31,7 @@ Weights and you can stack your weights.</p>
 <div id="popup" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.7); justify-content:center; align-items:center;">
   <div style="background:#222; padding:20px; border:3px solid goldenrod; color:white; margin:auto; width:300px; text-align:center;">
     <button class="buy-weight" data-strength="20" data-cost="500">Buy Medium Weight (+20) - 500 Coins</button>
-    <button class="buy-weight" data-strength="100" data-cost="1000">Buy Heavy Weight (+100) - 1000 Coins</button>
+    <button class="buy-weight" data-strength="1000" data-cost="1000">Buy Heavy Weight (+1000) - 1000 Coins</button>
     <button class="buy-weight" data-strength="1000" data-cost="10000">Buy Ultra Weight (+1000) - 10,000 Coins</button>
     <button class="buy-weight owner-only" data-strength="1000000" data-cost="0">Buy OWNER WEIGHT (+1,000,000) - Owner Only</button>
     <button id="close-popup">Close</button>
@@ -47,7 +48,7 @@ Weights and you can stack your weights.</p>
   let weightsLifted = 0;
   let coins = 0;
   let totalStrength = 5;
-  const weights = { 20: 0, 100: 0, 1000: 0, 1000000: 0 };
+  const weights = { 20: 1, 1000: 0 };
 
   let currentUser = localStorage.getItem("username");
   if (!currentUser) {
@@ -56,66 +57,13 @@ Weights and you can stack your weights.</p>
   }
   const isOwner = omegaAdmins.includes(currentUser);
   if (!isOwner) {
-    document.querySelector(".owner-only").style.display = "none";
+    document.querySelectorAll(".owner-only").forEach(el => el.style.display = "none");
   }
 
-  // Load saved stats from localStorage if available
-  const savedStats = JSON.parse(localStorage.getItem("stats_" + currentUser));
-  if (savedStats) {
-    weightsLifted = savedStats.weightsLifted || 0;
-    coins = savedStats.coins || 0;
-    totalStrength = savedStats.totalStrength || 5;
-    Object.assign(weights, savedStats.weights || { 20:0, 100:0, 1000:0, 1000000:0 });
-  }
-
-  // Load leaderboard or create empty
-  let leaderboard = JSON.parse(localStorage.getItem("leaderboard")) || [];
-
-  function saveStats() {
-    localStorage.setItem("stats_" + currentUser, JSON.stringify({
-      weightsLifted,
-      coins,
-      totalStrength,
-      weights
-    }));
-  }
-
-  function updateStatsUI() {
+  function updateStats() {
     document.getElementById("weights-lifted").textContent = weightsLifted;
-    document.getElementById("coins").textContent = coins;
     document.getElementById("strength").textContent = totalStrength;
-  }
-
-  function updateLeaderboard() {
-    const existingPlayer = leaderboard.find(p => p.username === currentUser);
-    if (existingPlayer) {
-      existingPlayer.strength = totalStrength;
-      existingPlayer.coins = coins;
-    } else {
-      leaderboard.push({ username: currentUser, strength: totalStrength, coins });
-    }
-
-    leaderboard.sort((a, b) => b.strength - a.strength || b.coins - a.coins);
-    if (leaderboard.length > 100) leaderboard.length = 100;
-    localStorage.setItem("leaderboard", JSON.stringify(leaderboard));
-
-    const list = document.getElementById("leaderboard-list");
-    list.innerHTML = "";
-    leaderboard.forEach((player, i) => {
-      const li = document.createElement("li");
-      li.textContent = `#${i + 1} - ${player.username}: Strength ${player.strength} | Coins ${player.coins}`;
-      list.appendChild(li);
-    });
-  }
-
-  function bombDrop() {
-    weightsLifted = Math.floor(weightsLifted * 0.8);
-    coins = Math.floor(coins * 0.8);
-    totalStrength = Math.floor(totalStrength * 0.8);
-    updateStatsUI();
-    updateLeaderboard();
-    saveStats();
-    alert("💣 Bomb dropped! 20% of your stats lost.");
+    document.getElementById("coins").textContent = coins;
   }
 
   document.getElementById("lift-btn").onclick = () => {
@@ -124,17 +72,13 @@ Weights and you can stack your weights.</p>
       liftAmount += count * Number(weight);
     }
     weightsLifted += liftAmount;
-    updateStatsUI();
-    updateLeaderboard();
-    saveStats();
+    updateStats();
   };
 
   document.getElementById("sell-btn").onclick = () => {
     coins += weightsLifted;
     weightsLifted = 0;
-    updateStatsUI();
-    updateLeaderboard();
-    saveStats();
+    updateStats();
   };
 
   document.getElementById("buy-btn").onclick = () => {
@@ -149,17 +93,17 @@ Weights and you can stack your weights.</p>
     button.onclick = () => {
       const weightStrength = Number(button.dataset.strength);
       const cost = Number(button.dataset.cost);
+
       if (button.classList.contains("owner-only") && !isOwner) {
         alert("You are not the owner!");
         return;
       }
+
       if (coins >= cost) {
         coins -= cost;
         weights[weightStrength] = (weights[weightStrength] || 0) + 1;
         totalStrength += weightStrength;
-        updateStatsUI();
-        updateLeaderboard();
-        saveStats();
+        updateStats();
         document.getElementById("popup").style.display = "none";
       } else if (cost > 0) {
         alert("Not enough coins!");
@@ -167,21 +111,71 @@ Weights and you can stack your weights.</p>
     };
   });
 
-  // Bomb countdown timer - 5 minutes countdown and drop
-  let countdown = 300;
-  const bombTimer = document.getElementById("bomb-timer");
+  // Bomb timer and effect every 5 minutes
+  const bombInterval = 5 * 60;
+  let bombCountdown = bombInterval;
+
+  function updateBombTimer() {
+    const mins = Math.floor(bombCountdown / 60);
+    const secs = bombCountdown % 60;
+    document.getElementById("bomb-timer").textContent = `Bomb drops in ${mins}:${secs.toString().padStart(2, '0')}`;
+  }
+
+  function bombDrop() {
+    weightsLifted = Math.floor(weightsLifted * 0.8);
+    coins = Math.floor(coins * 0.8);
+    totalStrength = Math.floor(totalStrength * 0.8);
+    updateStats();
+  }
+
   setInterval(() => {
-    countdown--;
-    if (countdown <= 0) {
+    bombCountdown--;
+    if (bombCountdown <= 0) {
       bombDrop();
-      countdown = 300;
+      bombCountdown = bombInterval;
     }
-    const minutes = Math.floor(countdown / 60);
-    const seconds = countdown % 60;
-    bombTimer.textContent = `Bomb drops in: ${minutes}:${seconds.toString().padStart(2, "0")}`;
+    updateBombTimer();
   }, 1000);
 
-  updateStatsUI();
+  updateStats();
+
+  // Leaderboard with Supabase
+  const supabaseUrl = 'https://gkcysyvdpgypytuemtof.supabase.co';
+  const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdrY3lzeXZkcGd5cHl0dWVtdG9mIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc0NzU1NDMxNywiZXhwIjoyMDYzMTMwMzE3fQ.Y_A3GuEcGYhLo2lcQR4waOSKBDlVfUC8evM0oyGLWEc';
+  const supabase = supabaseCreateClient(supabaseUrl, supabaseKey);
+
+  async function supabaseCreateClient(url, key) {
+    const { createClient } = await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm');
+    return createClient(url, key);
+  }
+
+  async function updateLeaderboard() {
+    const { data, error } = await supabase.from('leaderboard').select('*').order('strength', { ascending: false }).order('coins', { ascending: false }).limit(100);
+    if (error) return;
+
+    let found = false;
+    for (const player of data) {
+      if (player.username === currentUser) {
+        found = true;
+        await supabase.from('leaderboard').update({ strength: totalStrength, coins }).eq('username', currentUser);
+        break;
+      }
+    }
+    if (!found) {
+      await supabase.from('leaderboard').insert([{ username: currentUser, strength: totalStrength, coins }]);
+    }
+
+    const { data: newData } = await supabase.from('leaderboard').select('*').order('strength', { ascending: false }).order('coins', { ascending: false }).limit(100);
+    const leaderboardList = document.getElementById("leaderboard-list");
+    leaderboardList.innerHTML = "";
+    newData.forEach((player, index) => {
+      const li = document.createElement("li");
+      li.textContent = `#${index + 1} - ${player.username}: Strength ${player.strength} | Coins ${player.coins}`;
+      leaderboardList.appendChild(li);
+    });
+  }
+
+  setInterval(updateLeaderboard, 5000);
   updateLeaderboard();
 </script>
 </body>
