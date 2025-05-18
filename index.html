@@ -1,17 +1,21 @@
 <!DOCTYPE html>
 <html>
- <link rel="stylesheet" href="./style.css">
+<head>
+  <link rel="stylesheet" href="./style.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.34.0/dist/supabase.min.js"></script>
+</head>
 <body>
-<h1>Weight Lifting Simulator<h1>
-<p>Weight lifing simulator is a awesome simulator game about<br>
-lifing weights and selling your strength for money to buy better<br>
+<h1>Weight Lifting Simulator</h1>
+<p>Weight lifting simulator is a awesome simulator game about<br>
+lifting weights and selling your strength for money to buy better<br>
 Weights and you can stack your weights.</p>
- <form action="#" method="POST" onsubmit="return false;">
+
+<form action="#" method="POST" onsubmit="return false;">
   <div class="g-recaptcha" data-sitekey="6Lf9bj4rAAAAADP0K87QtycXM6-LqXA_ahtyWFy0"></div>
   <input type="submit" value="Submit">
 </form>
-<script src="https://www.google.com/recaptcha/api.js" async defer></script>
- <button id="lift-btn">Lift Weights</button>
+
+<button id="lift-btn">Lift Weights</button>
 <button id="sell-btn">Sell</button>
 <button id="buy-btn">Buy Weights</button>
 
@@ -21,102 +25,12 @@ Weights and you can stack your weights.</p>
 
 <div id="popup" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.7); justify-content:center; align-items:center;">
   <div style="background:#222; padding:20px; border:3px solid goldenrod; color:white; margin:auto; width:300px; text-align:center;">
-    <button class="buy-weight" data-strength="50" data-cost="500">Buy Medium Weight (+50) - 500 Coins</button>
-    <button class="buy-weight" data-strength="100" data-cost="1000">Buy Heavy Weight (+100) - 1000 Coins</button>
+    <button class="buy-weight" data-strength="20" data-cost="500">Buy Medium Weight (+20) - 500 Coins</button>
     <button class="buy-weight" data-strength="1000" data-cost="10000">Buy Ultra Weight (+1000) - 10,000 Coins</button>
     <button class="buy-weight owner-only" data-strength="1000000" data-cost="0">Buy OWNER WEIGHT (+1,000,000) - Owner Only</button>
     <button id="close-popup">Close</button>
   </div>
 </div>
-
-<script>
-  const omegaAdmins = ["KaydenDev123", "hgfghhccchgtjcdfhhhh"];
-  let weightsLifted = 0;
-  let coins = 0;
-  let totalStrength = 5;
-  const weights = { 50: 0, 100: 0, 1000: 0, 5: 1 };
-
-  let currentUser = localStorage.getItem("username");
-  if (!currentUser) {
-    currentUser = prompt("Enter your GitHub username:") || "Guest";
-    localStorage.setItem("username", currentUser);
-  }
-  const isOwner = omegaAdmins.includes(currentUser);
-  if (!isOwner) {
-    document.querySelector(".owner-only").style.display = "none";
-  }
-
-  document.getElementById("lift-btn").onclick = () => {
-    let liftAmount = 0;
-    for (const [weight, count] of Object.entries(weights)) {
-      liftAmount += count * Number(weight);
-    }
-    weightsLifted += liftAmount;
-    document.getElementById("weights-lifted").textContent = weightsLifted;
-  };
-
-  document.getElementById("sell-btn").onclick = () => {
-    coins += weightsLifted;
-    weightsLifted = 0;
-    document.getElementById("coins").textContent = coins;
-    document.getElementById("weights-lifted").textContent = 0;
-  };
-
-  document.getElementById("buy-btn").onclick = () => {
-    document.getElementById("popup").style.display = "flex";
-  };
-
-  document.getElementById("close-popup").onclick = () => {
-    document.getElementById("popup").style.display = "none";
-  };
-
-  document.querySelectorAll(".buy-weight").forEach(button => {
-    button.onclick = () => {
-      const weightStrength = Number(button.dataset.strength);
-      const cost = Number(button.dataset.cost);
-      
-      if (button.classList.contains("owner-only") && !isOwner) {
-        alert("You are not the owner!");
-        return;
-      }
-      
-      if (coins >= cost) {
-        coins -= cost;
-        weights[weightStrength] = (weights[weightStrength] || 0) + 1;
-        totalStrength += weightStrength;
-        document.getElementById("coins").textContent = coins;
-        document.getElementById("strength").textContent = totalStrength;
-        document.getElementById("popup").style.display = "none";
-      } else if (cost > 0) {
-        alert("Not enough coins!");
-      }
-    };
-  });
-
-  function dropBomb() {
-    const bombDamagePercent = 0.20;
-    const lostStrength = Math.floor(totalStrength * bombDamagePercent);
-    const lostCoins = Math.floor(coins * bombDamagePercent);
-    const lostWeightsLifted = Math.floor(weightsLifted * bombDamagePercent);
-
-    totalStrength = Math.max(5, totalStrength - lostStrength);
-    coins = Math.max(0, coins - lostCoins);
-    weightsLifted = Math.max(0, weightsLifted - lostWeightsLifted);
-
-    for (const weight in weights) {
-      weights[weight] = Math.floor(weights[weight] * (1 - bombDamagePercent));
-      if (weights[weight] < 0) weights[weight] = 0;
-    }
-
-    document.getElementById("strength").textContent = totalStrength;
-    document.getElementById("coins").textContent = coins;
-    document.getElementById("weights-lifted").textContent = weightsLifted;
-
-    alert(`💣 Bomb dropped! You lost ${lostStrength} strength, ${lostCoins} coins, and ${lostWeightsLifted} weights lifted!`);
-  }
-
-  setInterval(dropBomb, 15000);
-</script>
 
 <div id="leaderboard" style="background:#222; padding:20px; border:3px solid goldenrod; color:white; width:90%; max-width:500px; margin:20px auto; text-align:center;">
   <h2>🏆 Leaderboard</h2>
@@ -124,41 +38,104 @@ Weights and you can stack your weights.</p>
 </div>
 
 <script>
-  const leaderboard = JSON.parse(localStorage.getItem("leaderboard")) || [];
-  currentUser = localStorage.getItem("username");
+const SUPABASE_URL = "https://gkcysyvdpgypytuemtof.supabase.co";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdrY3lzeXZkcGd5cHl0dWVtdG9mIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc0NzU1NDMxNywiZXhwIjoyMDYzMTMwMzE3fQ.Y_A3GuEcGYhLo2lcQR4waOSKBDlVfUC8evM0oyGLWEc";
+const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-  let strength = totalStrength;
-  let leaderboardCoins = coins;
+const omegaAdmins = ["KaydenDev123", "hgfghhccchgtjcdfhhhh"];
+let weightsLifted = 0;
+let coins = 0;
+let totalStrength = 5;
+const weights = { 20: 0, 1000: 0 };
 
-  function updateLeaderboard() {
-    const existingPlayer = leaderboard.find(player => player.username === currentUser);
-    if (existingPlayer) {
-      existingPlayer.strength = strength;
-      existingPlayer.coins = leaderboardCoins;
-    } else {
-      leaderboard.push({ username: currentUser, strength, coins: leaderboardCoins });
-    }
+let currentUser = localStorage.getItem("username");
+if (!currentUser) {
+  currentUser = prompt("Enter your GitHub username:") || "Guest";
+  localStorage.setItem("username", currentUser);
+}
 
-    leaderboard.sort((a, b) => b.strength - a.strength || b.coins - a.coins);
-    if (leaderboard.length > 100) leaderboard.pop();
-    localStorage.setItem("leaderboard", JSON.stringify(leaderboard));
-    
+const isOwner = omegaAdmins.includes(currentUser);
+if (!isOwner) {
+  document.querySelector(".owner-only").style.display = "none";
+}
+
+async function fetchLeaderboard() {
+  const { data, error } = await supabase
+    .from("leaderboard")
+    .select("*")
+    .order("strength", { ascending: false })
+    .order("coins", { ascending: false })
+    .limit(100);
+
+  if (!error) {
     const leaderboardList = document.getElementById("leaderboard-list");
     leaderboardList.innerHTML = "";
-    leaderboard.forEach((player, index) => {
+    data.forEach((player, index) => {
       const listItem = document.createElement("li");
       listItem.textContent = `#${index + 1} - ${player.username}: Strength ${player.strength} | Coins ${player.coins}`;
       leaderboardList.appendChild(listItem);
     });
   }
+}
 
-  setInterval(() => {
-    strength = totalStrength;
-    leaderboardCoins = coins;
-    updateLeaderboard();
-  }, 5000);
+async function updateLeaderboard() {
+  await supabase
+    .from("leaderboard")
+    .upsert({ username: currentUser, strength: totalStrength, coins });
+  fetchLeaderboard();
+}
 
+document.getElementById("lift-btn").onclick = () => {
+  let liftAmount = 0;
+  for (const [weight, count] of Object.entries(weights)) {
+    liftAmount += count * Number(weight);
+  }
+  weightsLifted += liftAmount;
+  document.getElementById("weights-lifted").textContent = weightsLifted;
   updateLeaderboard();
+};
+
+document.getElementById("sell-btn").onclick = () => {
+  coins += weightsLifted;
+  weightsLifted = 0;
+  document.getElementById("coins").textContent = coins;
+  document.getElementById("weights-lifted").textContent = 0;
+  updateLeaderboard();
+};
+
+document.getElementById("buy-btn").onclick = () => {
+  document.getElementById("popup").style.display = "flex";
+};
+
+document.getElementById("close-popup").onclick = () => {
+  document.getElementById("popup").style.display = "none";
+};
+
+document.querySelectorAll(".buy-weight").forEach(button => {
+  button.onclick = () => {
+    const weightStrength = Number(button.dataset.strength);
+    const cost = Number(button.dataset.cost);
+    
+    if (button.classList.contains("owner-only") && !isOwner) {
+      alert("You are not the owner!");
+      return;
+    }
+    
+    if (coins >= cost) {
+      coins -= cost;
+      weights[weightStrength] = (weights[weightStrength] || 0) + 1;
+      totalStrength += weightStrength;
+      document.getElementById("coins").textContent = coins;
+      document.getElementById("strength").textContent = totalStrength;
+      document.getElementById("popup").style.display = "none";
+      updateLeaderboard();
+    } else if (cost > 0) {
+      alert("Not enough coins!");
+    }
+  };
+});
+
+fetchLeaderboard();
 </script>
 </body>
 </html>
